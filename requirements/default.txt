@@ -1,0 +1,6 @@
+beautifulsoup4
+fastapi
+python-jose[cryptography]
+python-multipart
+requests
+uvicorn[standard]
