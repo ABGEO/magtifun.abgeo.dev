@@ -2,6 +2,24 @@
 
 REST API Scrapper for [magtifun.ge](http://magtifun.ge/).
 
+- API: [magtifun.abgeo.dev](https://magtifun.abgeo.dev/)
+- Docs: [magtifun.abgeo.dev/docs](https://magtifun.abgeo.dev/docs)
+
+## Installation
+
+### Install requirements
+
+```shell
+pip install -r requirements/dev.txt
+```
+
+### Run ASGI server
+
+
+```shell
+uvicorn app.main:app --reload
+```
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for details.
