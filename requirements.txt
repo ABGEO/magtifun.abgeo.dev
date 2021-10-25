@@ -1,0 +1,3 @@
+# This file is required for Vercel.
+
+-r requirements/default.txt
