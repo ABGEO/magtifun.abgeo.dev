@@ -11,18 +11,16 @@ from fastapi import APIRouter, Depends
 
 from app.api.dependencies.auth import get_current_user
 from app.models.domain.user import User
-from app.models.schemas.sms import SMSOnSend, SMSSendResult
-from app.services.magtifun import send_sms
+from app.models.schemas.balance import Balance
+from app.services.magtifun import get_balance
 
-router = APIRouter(prefix="/sms", tags=["SMS"])
+router = APIRouter(prefix="/balance", tags=["Balance"])
 
 
-@router.post("/", response_model=SMSSendResult)
-async def send(
-    sms: SMSOnSend, current_user: User = Depends(get_current_user)
-) -> SMSSendResult:
+@router.get("/", response_model=Balance, name="Get balance")
+async def get(current_user: User = Depends(get_current_user)) -> Balance:
     """
-    Send SMS.
+    Get balance.
     """
 
-    return send_sms(current_user.key, sms)
+    return get_balance(current_user.key)

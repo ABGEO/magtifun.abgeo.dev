@@ -29,10 +29,6 @@ async def token_authentication(
 ) -> Token:
     """
     Create Authentication JWT Token.
-
-    :param OAuth2PasswordRequestForm form_data: Authentication data.
-    :raises HTTPException: if unable to     create JWT.
-    :return: Authentication Token.
     """
 
     user = authenticate_user(form_data.username, form_data.password)

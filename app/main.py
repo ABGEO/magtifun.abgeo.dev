@@ -9,10 +9,11 @@ file that was distributed with this source code.
 
 from fastapi import FastAPI
 
-from app.api.routers import account, auth, sms
+from app.api.routers import account, auth, balance, sms
 
 app = FastAPI()
 
 app.include_router(account.router)
 app.include_router(auth.router)
+app.include_router(balance.router)
 app.include_router(sms.router)

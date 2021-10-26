@@ -16,6 +16,7 @@ from fastapi import HTTPException
 
 from app.models.domain.user import User
 from app.models.schemas.account import Account, Gender
+from app.models.schemas.balance import Balance
 from app.models.schemas.sms import SMSOnSend, SMSSendResult
 from app.resources.strings import SEND_SMS_STATUSES
 
@@ -168,4 +169,23 @@ def get_account_info(key: str) -> Account:
         gender=Gender.FEMALE
         if soup.find("input", {"id": "female", "checked": True})
         else Gender.MALE,
+    )
+
+
+def get_balance(key: str) -> Balance:
+    """
+    Get account balance.
+
+    :param str key: Authentication key.
+    :return: Balance.
+    """
+
+    session = get_session(key)
+    form_user_action = bs(session.get(SITE_BASE_URL).text, "html.parser").find(
+        "form", {"name": "user_action"}
+    )
+
+    return Balance(
+        credit=form_user_action.find("span", {"class": "xxlarge dark english"}).text,
+        amount=form_user_action.find("span", {"class": "dark english"}).text,
     )

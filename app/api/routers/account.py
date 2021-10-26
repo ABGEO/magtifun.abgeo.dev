@@ -21,9 +21,6 @@ router = APIRouter(prefix="/account", tags=["Account"])
 async def account_info(current_user: User = Depends(get_current_user)) -> Account:
     """
     Get current account info.
-
-    :param User current_user: Authenticated User.
-    :return: Account info.
     """
 
     return get_account_info(current_user.key)
