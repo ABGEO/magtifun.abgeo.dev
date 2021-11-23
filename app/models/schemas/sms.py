@@ -49,3 +49,7 @@ class SMSHistoryItem(BaseModel):
     recipient: str
     text: str
     delivered: bool
+
+
+class SMSHistoryItemRemoveStatus(BaseModel):
+    status: bool

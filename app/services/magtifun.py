@@ -259,6 +259,24 @@ def get_sms_history(key: str):
     return items
 
 
+def remove_sms_from_history(sms_id: int, key: str):
+    """
+    Remove SMS from history.
+
+    :param int sms_id: SMS ID to remove.
+    :param str key: Authentication key.
+    :return: List of SMSHistoryItems.
+    """
+
+    session = get_session(key)
+    response = session.post(
+        f"{SITE_BASE_URL}/scripts/delete_message.php",
+        {"type": "single", "msg_id": sms_id},
+    )
+
+    return response.status_code == 200 and response.text == "success"
+
+
 def _parse_sms_history_items(response):
     response.encoding = "utf-8"
     soup = bs(response.text, "html.parser")
