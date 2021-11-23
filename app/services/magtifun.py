@@ -283,25 +283,26 @@ def _parse_sms_history_items(response):
     messages = soup.find("div", {"id": "message_list"})
 
     items = []
-    for message in messages:
-        body = message.find("td", {"class": "msg_body"})
-        date = datetime.strptime(
-            message.find("td", {"class": "msg_date"}).text, "%d%b%Y%H:%M:%S"
-        )
-        recipient = (
-            body.find("p", {"class": "message_list_recipient"})
-            .find_all("span", {"class": "red"})[1]
-            .text
-        )
+    if messages:
+        for message in messages:
+            body = message.find("td", {"class": "msg_body"})
+            date = datetime.strptime(
+                message.find("td", {"class": "msg_date"}).text, "%d%b%Y%H:%M:%S"
+            )
+            recipient = (
+                body.find("p", {"class": "message_list_recipient"})
+                .find_all("span", {"class": "red"})[1]
+                .text
+            )
 
-        item = SMSHistoryItem(
-            id=message["id"][4:],
-            date=date,
-            recipient=recipient,
-            text=body.find("p", {"class": "msg_text"}).text,
-            delivered=("msg_sent" in message["class"]),
-        )
+            item = SMSHistoryItem(
+                id=message["id"][4:],
+                date=date,
+                recipient=recipient,
+                text=body.find("p", {"class": "msg_text"}).text,
+                delivered=("msg_sent" in message["class"]),
+            )
 
-        items.append(item)
+            items.append(item)
 
     return items
