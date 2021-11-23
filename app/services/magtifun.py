@@ -16,7 +16,7 @@ from fastapi import HTTPException
 
 from app.models.domain.user import User
 from app.models.schemas.account import Account, Gender
-from app.models.schemas.balance import Balance
+from app.models.schemas.balance import Balance, BalanceHistoryItem
 from app.models.schemas.sms import SMSOnSend, SMSSendResult
 from app.resources.strings import SEND_SMS_STATUSES
 
@@ -189,3 +189,46 @@ def get_balance(key: str) -> Balance:
         credit=form_user_action.find("span", {"class": "xxlarge dark english"}).text,
         amount=form_user_action.find("span", {"class": "dark english"}).text,
     )
+
+
+def get_balance_history(key: str):
+    """
+    Get account balance history.
+
+    :param str key: Authentication key.
+    :return: List of BalanceHistoryItems.
+    """
+
+    session = get_session(key)
+
+    response = session.get(f"{SITE_BASE_URL}/index.php?page=16&lang=en")
+    response.encoding = "utf-8"
+    soup = bs(response.text, "html.parser")
+
+    div_left_side = soup.find("div", {"class": "left_side"})
+    divs = div_left_side.find_all("div")
+
+    last_date = None
+    items = []
+    for div in divs:
+        if div.has_attr("class"):
+            classes = div["class"]
+            if "date_separator" in classes:
+                last_date = div.text
+            elif "box_div" in classes:
+                row = div.find("tr")
+                time = row.find("td", {"class": "msg_date"}).text
+                amount_parts = row.find(
+                    "td", {"class": "credit_list_amount"}
+                ).text.split(" ")
+
+                item = BalanceHistoryItem(
+                    date=datetime.strptime(f"{last_date} {time}", "%d %B %Y %H:%M:%S"),
+                    message=row.find("td", {"class": "msg_body"}).text,
+                    amount=int(amount_parts[1]),
+                    charge=amount_parts[0] == "-",
+                )
+
+                items.append(item)
+
+    return items

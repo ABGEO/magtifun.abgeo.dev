@@ -9,6 +9,8 @@ file that was distributed with this source code.
 
 # pylint: disable=C0115,R0903
 
+from datetime import datetime
+
 # pylint: disable=E0611
 from pydantic import BaseModel
 
@@ -24,3 +26,10 @@ class Balance(BaseModel):
                 "amount": 5,
             }
         }
+
+
+class BalanceHistoryItem(BaseModel):
+    date: datetime
+    message: str
+    amount: int
+    charge: bool
