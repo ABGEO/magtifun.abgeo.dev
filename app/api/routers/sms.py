@@ -7,12 +7,14 @@ For the full copyright and license information, please view the LICENSE
 file that was distributed with this source code.
 """
 
+from typing import List
+
 from fastapi import APIRouter, Depends
 
 from app.api.dependencies.auth import get_current_user
 from app.models.domain.user import User
-from app.models.schemas.sms import SMSOnSend, SMSSendResult
-from app.services.magtifun import send_sms
+from app.models.schemas.sms import SMSOnSend, SMSSendResult, SMSHistoryItem
+from app.services.magtifun import send_sms, get_sms_history
 
 router = APIRouter(prefix="/sms", tags=["SMS"])
 
@@ -26,3 +28,14 @@ async def send(
     """
 
     return send_sms(current_user.key, sms)
+
+
+@router.get("/history", response_model=List[SMSHistoryItem], name="Get SMS history")
+async def history(
+    current_user: User = Depends(get_current_user),
+) -> List[SMSHistoryItem]:
+    """
+    Get SMS history.
+    """
+
+    return get_sms_history(current_user.key)

@@ -17,7 +17,7 @@ from fastapi import HTTPException
 from app.models.domain.user import User
 from app.models.schemas.account import Account, Gender
 from app.models.schemas.balance import Balance, BalanceHistoryItem
-from app.models.schemas.sms import SMSOnSend, SMSSendResult
+from app.models.schemas.sms import SMSOnSend, SMSSendResult, SMSHistoryItem
 from app.resources.strings import SEND_SMS_STATUSES
 
 SITE_BASE_URL: str = "http://www.magtifun.ge"
@@ -230,5 +230,60 @@ def get_balance_history(key: str):
                 )
 
                 items.append(item)
+
+    return items
+
+
+def get_sms_history(key: str):
+    """
+    Get SMS history.
+
+    :param str key: Authentication key.
+    :return: List of SMSHistoryItems.
+    """
+
+    session = get_session(key)
+
+    url = f"{SITE_BASE_URL}/index.php?page=10&lang=en"
+    response = session.get(url)
+    pages = bs(response.text, "html.parser").find_all("span", {"class": "page_number"})
+    items = _parse_sms_history_items(response)
+
+    if len(pages) != 0:
+        del pages[0]
+        for page in pages:
+            items = items + _parse_sms_history_items(
+                session.post(url, {"cur_page": page.text})
+            )
+
+    return items
+
+
+def _parse_sms_history_items(response):
+    response.encoding = "utf-8"
+    soup = bs(response.text, "html.parser")
+    messages = soup.find("div", {"id": "message_list"})
+
+    items = []
+    for message in messages:
+        body = message.find("td", {"class": "msg_body"})
+        date = datetime.strptime(
+            message.find("td", {"class": "msg_date"}).text, "%d%b%Y%H:%M:%S"
+        )
+        recipient = (
+            body.find("p", {"class": "message_list_recipient"})
+            .find_all("span", {"class": "red"})[1]
+            .text
+        )
+
+        item = SMSHistoryItem(
+            id=message["id"][4:],
+            date=date,
+            recipient=recipient,
+            text=body.find("p", {"class": "msg_text"}).text,
+            delivered=("msg_sent" in message["class"]),
+        )
+
+        items.append(item)
 
     return items

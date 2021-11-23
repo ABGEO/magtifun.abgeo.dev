@@ -9,6 +9,8 @@ file that was distributed with this source code.
 
 # pylint: disable=C0115,R0903
 
+from datetime import datetime
+
 # pylint: disable=E0611
 from pydantic import BaseModel
 
@@ -39,3 +41,11 @@ class SMSSendResult(BaseModel):
                 "message": SEND_SMS_STATUSES["success"],
             }
         }
+
+
+class SMSHistoryItem(BaseModel):
+    id: int
+    date: datetime
+    recipient: str
+    text: str
+    delivered: bool
